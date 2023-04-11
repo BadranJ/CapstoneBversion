@@ -139,22 +139,6 @@ public class State {
         return true;
     }
 
-    public boolean hasAtLeastTwoKnownValues() {
-        int knownValuesCount = 0;
-
-        if (getPressure() != 0) {
-            knownValuesCount++;
-        }
-        if (getTemp() != 0) {
-            knownValuesCount++;
-        }
-        if (getVolume() != 0) {
-            knownValuesCount++;
-        }
-
-        return knownValuesCount >= 2;
-    }
-
 
 
 
@@ -242,6 +226,7 @@ public class State {
     public void setVOriginal(double v) {
         this.vOriginal = v;
     }
+
 
 
     // getters

@@ -38,9 +38,6 @@ public class Process extends ACProcess {
     }
 
 
-
-
-
     public Process(State state1, State state2, double n, char process) {
         super(state1, state2, process);
         this.state1 = state1;
@@ -60,20 +57,9 @@ public class Process extends ACProcess {
     // }
 
 
-
     public void validateStates() {
 
-        double R=0.287;
-        double p1 = state1.getPressure();
-        double t1 = state1.getTemp();
-        double v1 = state1.getVolume();
-        double p2 = state2.getPressure();
-        double t2 = state2.getTemp();
-        double v2 = state2.getVolume();
-
-
-
-
+        double R = 0.287;
 
         switch (this.process) {
             case 'p': // constant pressure
@@ -81,19 +67,19 @@ public class Process extends ACProcess {
                 if (state1.getPressure() != 0 && state2.getPressure() != 0 && state1.getPressure() != state2.getPressure()) {
                     throw new IllegalArgumentException("Pressure must be constant for a constant pressure process.");
                 }
-                if (state1.getPressure() == 0 && state2.getPressure() == 0) {
-                    throw new IllegalArgumentException("Both states cannot have 0 pressure for a constant pressure process.");
-                }
+//                if (state1.getPressure() == 0 && state2.getPressure() == 0) {
+//                    throw new IllegalArgumentException("Both states cannot have 0 pressure for a constant pressure process.");
+//                }
                 if (state1.getPressure() == 0) {
                     state1.setPressure(state2.getPressure());
                 } else if (state2.getPressure() == 0) {
                     state2.setPressure(state1.getPressure());
                 }
 
-                int n=1;
+                int n = 1;
 
 
-                if (state1.getTemp() != 0 && state2.getTemp() != 0 && state1.getVolume() != 0 && state2.getVolume() != 0) { // here we force it to check if the values in the states are consistent whether the values exist or not.
+                if ((state1.getTemp() != 0 && state2.getTemp() != 0 && state1.getVolume() != 0 && state2.getVolume() != 0)) { // here we force it to check if the values in the states are consistent whether the values exist or not.
                     double calculatedPressure1 = state1.getTemp() * R / state1.getVolume();
                     double calculatedPressure2 = state2.getTemp() * R / state2.getVolume();
 
@@ -108,20 +94,20 @@ public class Process extends ACProcess {
                 if (state1.getVolume() != 0 && state2.getVolume() != 0 && state1.getVolume() != state2.getVolume()) {
                     throw new IllegalArgumentException("Volume must be constant for a constant volume process.");
                 }
-                if (state1.getVolume() == 0 && state2.getVolume() == 0) {
-                    throw new IllegalArgumentException("Both states cannot have 0 volume for a constant volume process.");
-                }
+                //if (state1.getVolume() == 0 && state2.getVolume() == 0) {
+                //  throw new IllegalArgumentException("Both states cannot have 0 volume for a constant volume process.");
+                //}
                 if (state1.getVolume() == 0) {
                     state1.setVolume(state2.getVolume());
                 } else if (state2.getVolume() == 0) {
                     state2.setVolume(state1.getVolume());
                 }
 
-                int k=1;
+                int k = 1;
 
                 if ((state1.getTemp() != 0 && state2.getTemp() != 0) && (state1.getPressure() != 0 && state2.getPressure() != 0)) {
-                    double calculatedVolume1 = (R*state1.getTemp()) / state1.getPressure();
-                    double calculatedVolume2 = (R*state2.getTemp()) / state2.getPressure();
+                    double calculatedVolume1 = (R * state1.getTemp()) / state1.getPressure();
+                    double calculatedVolume2 = (R * state2.getTemp()) / state2.getPressure();
 
                     if (Math.abs(calculatedVolume1 - calculatedVolume2) > 1e-6) {
                         throw new IllegalArgumentException("The given states are not consistent for a constant volume process.");
@@ -132,13 +118,13 @@ public class Process extends ACProcess {
 
             case 't': // constant temperature
                 // Update the validation for constant temperature process
-                if (t1 != 0 && t2 != 0 && t1 != t2) {
+                if (state1.getTemp() != 0 && state2.getTemp() != 0 && state1.getTemp() != state2.getTemp()) {
                     throw new IllegalArgumentException("The given states are not consistent for a constant temperature process.");
                 }
 
-                if (p1 != 0 && p2 != 0 && v1 != 0 && v2 != 0) {
-                    double checkT1 = p1 * v1 / R;
-                    double checkT2 = p2 * v2 / R;
+                if (state1.getPressure() != 0 && state2.getPressure() != 0 && state1.getVolume() != 0 && state2.getVolume() != 0) {
+                    double checkT1 = state1.getPressure() * state1.getVolume() / R;
+                    double checkT2 = state2.getPressure() * state2.getVolume() / R;
                     if (Math.abs(checkT1 - checkT2) > 1e-3) {
                         throw new IllegalArgumentException("The given states are not consistent for a constant temperature process.");
                     }
@@ -146,20 +132,13 @@ public class Process extends ACProcess {
                 break;
             case 'x':
                 break;
-            case'y':
+            case 'y':
                 break;
 
             default:
                 throw new IllegalArgumentException("Invalid process type.");
         }
     }
-
-    public void swapState() {
-        State temp = state1;
-        state1 = state2;
-        state2 = temp;
-    }
-
 
 
     public void passProperties() {
@@ -182,13 +161,18 @@ public class Process extends ACProcess {
                 double t1_init = state1.getTemp();
                 double t2_init = state2.getTemp();
 
+                // Validation check
+                if (state1.getTemp() != 0 && state2.getTemp() != 0 && state1.getTemp() != state2.getTemp()) {
+                    throw new IllegalArgumentException("Invalid input: conflicting temperatures for an isothermal process");
+                }
+
                 //deciding from which state to pass the property from
 
 
                 if (t1_init == t2_init) {
                     t2 = t1;
                     this.state2.setTOriginal(t2);
-                } else if (t1_init==0 && t2_init!=0) {
+                } else if (t1_init == 0 && t2_init != 0) {
                     t1 = t2;
                     this.state1.setTOriginal(t1);
                 } else {
@@ -211,12 +195,17 @@ public class Process extends ACProcess {
                 double p1_init = state1.getPressure();
                 double p2_init = state2.getPressure();
 
+                // Validation check
+                if (state1.getPressure() != 0 && state2.getPressure() != 0 && state1.getPressure() != state2.getPressure()) {
+                    throw new IllegalArgumentException("Invalid input: conflicting pressures for an isobaric process");
+                }
+
                 //deciding from which state to pass the property from
 
                 if (p1_init == p2_init) {
                     p2 = p1;
                     this.state2.setPOriginal(p2);
-                } else if (p1_init==0 && p2_init!=0) {
+                } else if (p1_init == 0 && p2_init != 0) {
                     p1 = p2;
                     this.state1.setPOriginal(p1);
                 } else {
@@ -232,10 +221,15 @@ public class Process extends ACProcess {
                 double v1_init = state1.getVolume();
                 double v2_init = state2.getVolume();
 
+                // Validation check
+                if (state1.getVolume() != 0 && state2.getVolume() != 0 && state1.getVolume() != state2.getVolume()) {
+                    throw new IllegalArgumentException("Invalid input: conflicting volumes for an isochoric process");
+                }
+
                 if (v1_init == v2_init) {
                     v2 = v1;
                     this.state2.setVOriginal(v2);
-                } else if (v1_init==0 && v2_init!=0) {
+                } else if (v1_init == 0 && v2_init != 0) {
                     v1 = v2;
                     this.state1.setVOriginal(v1);
                 } else {
@@ -263,8 +257,6 @@ public class Process extends ACProcess {
         this.setDeltaEnthalpy(CpColdAir * (t2 - t1));
 
 
-
-
         state1.setTemp(t1);
         state1.setPressure(p1);
         state1.setVolume(v1);
@@ -273,37 +265,19 @@ public class Process extends ACProcess {
         state2.setPressure(p2);
         state2.setVolume(v2);
 
-
-
-
-
-
     }
 
 
-    public List<State> solveProcess()  {
+    public List<State> solveProcess() {
 
-
-
-        double p2 = state2.getPressure();
-        double t2 = state2.getTemp();
-        double v2 = state2.getVolume();
-        double n = this.getN();
 
         double CvColdAir = CpCvMap.get("ColdAir").get(1);
         double CpColdAir = CpCvMap.get("ColdAir").get(0);
-        double nn = CpColdAir / CvColdAir;
+        double nn = CpColdAir / CvColdAir; //isentropic n value.
 
-
-        double p1 = state1.getPressure();
-        double t1 = state1.getTemp();
-        double v1 = state1.getVolume();
         double R = 0.287;
 
-        //System.out.println("Before: " + state1 + " -> " + state2);
-
         validateStates();
-
 
 
         switch (this.process) {
@@ -311,17 +285,17 @@ public class Process extends ACProcess {
 
                 //determine first which state has fewer known properties.
 
-                if ((p1 != 0 && t1 != 0) || (p1 != 0 && v1 != 0) || (t1 != 0 && v1 != 0)) {
+                if ((state1.getPressure() != 0 && state1.getTemp() != 0) || (state1.getPressure() != 0 && state1.getVolume() != 0) || (state1.getTemp() != 0 && state1.getVolume() != 0)) {
 
                     this.state1.solve();
                     System.out.println("Initially solving state 1 for polytropic " + state1.getValues());
 
-                    if (p2 != 0 & v2 == 0 & t2 == 0) {
-                        this.state2.setVolume((this.state1.getVolume()) * (Math.pow(p2 / this.state1.getPressure(), -1 / n)));
-                    } else if (p2 == 0 & v2 != 0 & t2 == 0) {
-                        this.state2.setPressure(this.state1.getPressure() * (Math.pow(this.state1.getVolume() / v2, n)));
+                    if (state2.getPressure() != 0 & state2.getVolume() == 0 & state2.getTemp() == 0) {
+                        this.state2.setVolume((this.state1.getVolume()) * (Math.pow(state2.getPressure() / this.state1.getPressure(), -1 / this.getN())));
+                    } else if (state2.getPressure() == 0 & state2.getVolume() != 0 & state2.getTemp() == 0) {
+                        this.state2.setPressure(this.state1.getPressure() * (Math.pow(this.state1.getVolume() / state2.getVolume(), this.getN())));
                     } else {
-                        this.state2.setPressure(this.state1.getPressure() * Math.pow(t2 / this.state1.getTemp(), n / (n - 1)));
+                        this.state2.setPressure(this.state1.getPressure() * Math.pow(state2.getTemp() / this.state1.getTemp(), this.getN() / (this.getN() - 1)));
                     }
                     this.state2.solve();
 
@@ -329,12 +303,12 @@ public class Process extends ACProcess {
                     this.state2.solve();
                     System.out.println("Initially solving state 2 for polytropic " + state2.getValues());
 
-                    if (p1 != 0 & v1 == 0 & t1 == 0) {
-                        this.state1.setVolume((this.state2.getVolume()) * (Math.pow(p1 / this.state2.getPressure(), -1 / n)));
-                    } else if (p1 == 0 & v1 != 0 & t1 == 0) {
-                        this.state1.setPressure(this.state2.getPressure() * (Math.pow(this.state2.getVolume() / v1, n)));
+                    if (state1.getPressure() != 0 & state1.getVolume() == 0 & state1.getTemp() == 0) {
+                        this.state1.setVolume((this.state2.getVolume()) * (Math.pow(state1.getPressure() / this.state2.getPressure(), -1 / this.getN())));
+                    } else if (state1.getPressure() == 0 & state1.getVolume() != 0 & state1.getTemp() == 0) {
+                        this.state1.setPressure(this.state2.getPressure() * (Math.pow(this.state2.getVolume() / state1.getVolume(), this.getN())));
                     } else {
-                        this.state1.setPressure(this.state2.getPressure() * Math.pow(t1 / this.state2.getTemp(), n / (n - 1)));
+                        this.state1.setPressure(this.state2.getPressure() * Math.pow(state1.getTemp() / this.state2.getTemp(), this.getN() / (this.getN() - 1)));
                     }
                     this.state1.solve();
                 }
@@ -354,16 +328,16 @@ public class Process extends ACProcess {
 
             case 'y': //Isentropic
 
-                if ((p1 != 0 && t1 != 0) || (p1 != 0 && v1 != 0) || (t1 != 0 && v1 != 0)) {
+                if ((state1.getPressure() != 0 && state1.getTemp() != 0) || (state1.getPressure() != 0 && state1.getVolume() != 0) || (state1.getTemp() != 0 && state1.getVolume() != 0)) {
                     this.state1.solve();
                     System.out.println("Initially solving state 1 for isentropic " + state1.getValues());
 
-                    if (p2 != 0 & v2 == 0 & t2 == 0) {
-                        this.state2.setVolume((this.state1.getVolume()) * (Math.pow(p2 / this.state1.getPressure(), -1 / nn)));
-                    } else if (p2 == 0 & v2 != 0 & t2 == 0) {
-                        this.state2.setPressure(this.state1.getPressure() * (Math.pow(this.state1.getVolume() / v2, nn)));
+                    if (state2.getPressure() != 0 & state2.getVolume() == 0 & state2.getTemp() == 0) {
+                        this.state2.setVolume((this.state1.getVolume()) * (Math.pow(state2.getPressure() / this.state1.getPressure(), -1 / nn)));
+                    } else if (state2.getPressure() == 0 & state2.getVolume() != 0 & state2.getTemp() == 0) {
+                        this.state2.setPressure(this.state1.getPressure() * (Math.pow(this.state1.getVolume() / state2.getVolume(), nn)));
                     } else {
-                        this.state2.setPressure(this.state1.getPressure() * Math.pow(t2 / this.state1.getTemp(), nn / (nn - 1)));
+                        this.state2.setPressure(this.state1.getPressure() * Math.pow(state2.getTemp() / this.state1.getTemp(), nn / (nn - 1)));
                     }
                     this.state2.solve();
 
@@ -371,18 +345,18 @@ public class Process extends ACProcess {
                     this.state2.solve();
                     System.out.println("Initially solving state 2 for isentropic " + state2.getValues());
 
-                    if (p1 != 0 & v1 == 0 & t1 == 0) {
-                        this.state1.setVolume((this.state2.getVolume()) * (Math.pow(p1 / this.state2.getPressure(), -1 / nn)));
-                    } else if (p1 == 0 & v1 != 0 & t1 == 0) {
-                        this.state1.setPressure(this.state2.getPressure() * (Math.pow(this.state2.getVolume() / v1, nn)));
+                    if (state1.getPressure() != 0 & state1.getVolume() == 0 & state1.getTemp() == 0) {
+                        this.state1.setVolume((this.state2.getVolume()) * (Math.pow(state1.getPressure() / this.state2.getPressure(), -1 / nn)));
+                    } else if (state1.getPressure() == 0 & state1.getVolume() != 0 & state1.getTemp() == 0) {
+                        this.state1.setPressure(this.state2.getPressure() * (Math.pow(this.state2.getVolume() / state1.getVolume(), nn)));
                     } else {
-                        this.state1.setPressure(this.state2.getPressure() * Math.pow(t1 / this.state2.getTemp(), nn / (nn - 1)));
+                        this.state1.setPressure(this.state2.getPressure() * Math.pow(state1.getTemp() / this.state2.getTemp(), nn / (nn - 1)));
                     }
                     this.state1.solve();
                 }
 
 
-                double workk = (R * (t2 - t1)) / (1 - nn);
+                double workk = (R * (state2.getTemp() - state1.getTemp())) / (1 - nn);
                 this.setWork(workk);
                 this.setHeat(0);
 
@@ -393,13 +367,13 @@ public class Process extends ACProcess {
 
                 // checking which state to solve first based on which has fewer properties.
 
-                if ((p1 != 0 && t1 != 0) || (p1 != 0 && v1 != 0) || (t1 != 0 && v1 != 0)) {
+                if ((state1.getPressure() != 0 && state1.getTemp() != 0) || (state1.getPressure() != 0 && state1.getVolume() != 0) || (state1.getTemp() != 0 && state1.getVolume() != 0)) {
 
                     this.state2.solve();
                     System.out.println(
                             "We are asserting that all values in " + state1.toString() + " are: " + state1.assertState());
 
-                    this.passProperties();
+                    //this.passProperties();
                     this.state1.solve();
 
                     System.out.println(
@@ -410,7 +384,7 @@ public class Process extends ACProcess {
                     System.out.println(
                             "We are asserting that all values in " + state2.toString() + " are: " + state2.assertState());
 
-                    this.passProperties();
+                    //this.passProperties();
                     this.state2.solve();
 
                     System.out.println(
@@ -424,34 +398,17 @@ public class Process extends ACProcess {
         }
 
 
-        //validateProcess();
         validateStates();
-        //System.out.println("After: " + state1 + " -> " + state2);
 
 
         return solvedStates;
     }
 
 
-    public State getSharedState(Process otherProcess) {
-        if (this.state1.toString().equals(otherProcess.state1.toString()) || this.state1.toString().equals(otherProcess.state2.toString())) {
-            return this.state1;
-        } else if (this.state2.toString().equals(otherProcess.state1.toString()) || this.state2.toString().equals(otherProcess.state2.toString())) {
-            return this.state2;
-        } else {
-            return null;
-        }
-    }
-
-
-    //return solvedStates;
-
-
-
     public boolean allSolved() {
         boolean flag = true;
 
-        for (Iterator<State> iter = STATES.iterator(); iter.hasNext();) {
+        for (Iterator<State> iter = STATES.iterator(); iter.hasNext(); ) {
             State s = iter.next();
             if (s.isSolved() == false) {
                 flag = false;
@@ -462,29 +419,16 @@ public class Process extends ACProcess {
         return flag;
     }
 
-    public Map<String, List<Double>> getSolvedStatesValues() {
-        Map<String, List<Double>> statesValues = new HashMap<>();
-        // List<Double> vals = new ArrayList<>();
-        for (Iterator<State> s = this.solvedStates.iterator(); s.hasNext();) {
-            State stat = s.next();
-            statesValues.put(stat.toString(), stat.getValues());
-        }
-        return statesValues;
-    }
+//    public Map<String, List<Double>> getSolvedStatesValues() {
+//        Map<String, List<Double>> statesValues = new HashMap<>();
+//        // List<Double> vals = new ArrayList<>();
+//        for (Iterator<State> s = this.solvedStates.iterator(); s.hasNext();) {
+//            State stat = s.next();
+//            statesValues.put(stat.toString(), stat.getValues());
+//        }
+//        return statesValues;
+//    }
 
-
-    public void cycle() {
-
-        while (!this.allSolved()) {
-
-        }
-        // for(Entry<String, List<Integer>> entry : STATS1.entrySet()){
-        // String n = entry.getKey();
-        // List<Integer> el = entry.getValue();
-        // System.out.println("Name: "+n+ "\tStats(Wins,Losses,Draws): "+el);
-        // }
-
-    }
 
     // getters
 
@@ -493,9 +437,10 @@ public class Process extends ACProcess {
     }
 
 
-    public char getProcess(){
+    public char getProcess() {
         return this.process;
     }
+
     public double getN() {
         return this.n;
     }
@@ -565,5 +510,6 @@ public class Process extends ACProcess {
         state2 = temp;
 
     }
+
 }
 

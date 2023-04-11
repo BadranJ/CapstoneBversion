@@ -21,7 +21,7 @@ public class testProgram {
         //Process process2 = new Process(state3, state4, 'p');
         Process process3 = new Process(state4, state3, 't');
 //         Process process4 = new Process(state1, state4, 't');
-        proc.add(process1);
+        //proc.add(process1);
         //proc.add(process3);
         //proc.add(process2);
 
@@ -52,9 +52,9 @@ public class testProgram {
 //        proc.add(process7);
 
 
-        State state11 = new State(0, 100, 0, "State11");
-        State state12 = new State(300, 0, 0, "State12");
-        State state13 = new State(0, 0, 0.1, "State13");
+//        State state11 = new State(0, 100, 0, "State11");
+//        State state12 = new State(300, 0, 0, "State12");
+//        State state13 = new State(0, 0, 0.1, "State13");
 
 
 //        Process process9=new Process(state12,state13,'v'); //ORDER MATTERS.
@@ -80,10 +80,10 @@ public class testProgram {
 
 
         //EXAMPEL 1
-//        State state18 = new State(0, 0, 0.1435, "state1");
-//        State state19 = new State(500, 2000, 0.07175, "State2");
-//        State state20 = new State(1000, 0, 0.1435, "State 3");
-//
+        State state18 = new State(0, 0, 0.1435, "state1");
+        State state19 = new State(500, 0, 0.07175, "State2");
+        State state20 = new State(1000, 0, 0.1435, "State 3");
+
 //        Process p1 = new Process(state18,state19,'t');
 //        proc.add(p1);
 //
@@ -95,25 +95,25 @@ public class testProgram {
 
 
         //EXAMPLE 2
-
-        State state21 = new State(0, 1000, 0, "State 1");
-        State state22 = new State(0, 0, 0.1435, "State 2");
-        State state23 = new State(800, 0, 0, "State 3");
-        State state24 = new State(0, 2000, 0, "State 4");
-
-
-        Process p1 = new Process(state21,state22,'v');
-        proc.add(p1);
-
-
-        Process p2= new Process(state22,state23,'t');
-        proc.add(p2);
-
-        Process p3 = new Process(state23,state24,'p');
-        proc.add(p3);
-
-        Process p4 = new Process(state24,state21,'t');
-        proc.add(p4);
+//
+//        State state21 = new State(0, 1000, 0, "State 1");
+//        State state22 = new State(0, 0, 0.1435, "State 2");
+//        State state23 = new State(800, 0, 0, "State 3");
+//        State state24 = new State(0, 2000, 0, "State 4");
+//
+//
+//        Process p1 = new Process(state21,state22,'v');
+//        proc.add(p1);
+//
+//
+//        Process p2= new Process(state22,state23,'t');
+//        proc.add(p2);
+//
+//        Process p3 = new Process(state23,state24,'p');
+//        proc.add(p3);
+//
+//        Process p4 = new Process(state24,state21,'t');
+//        proc.add(p4);
 
 //        Collections.sort(proc, (Process a, Process b) -> {
 //            if (a.getProcess() == 't' && b.getProcess() != 't') {
@@ -143,7 +143,27 @@ public class testProgram {
 //        proc.add(process12);
 
 
-//
+        //State state11 = new State(300, 100, 0, "State 1");
+        //State state22 = new State(400, 150, 0, "State 2");
+
+
+
+
+        State state11 = new State(300, 0, 0.8, "State 1");
+        State state22 = new State(0, 150, 0, "State 2");
+        State state33 = new State(0, 80, 1.5, "State 1");
+
+
+        Process process11= new Process(state11,state22,'p');
+        Process process22= new Process(state22,state33,'t');
+        Process process33= new Process(state33,state11,'v');
+
+
+        proc.add(process11);
+        proc.add(process22);
+        proc.add(process33);
+
+
 
 
         Solver solver = new Solver(proc);
